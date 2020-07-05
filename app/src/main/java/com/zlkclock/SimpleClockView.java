@@ -99,7 +99,7 @@ public class SimpleClockView extends View {
         timePaint.setTextSize(textSizeTime);
 
         canvas.drawText(textTime, centerX - timePaint.measureText(textTime) / 2,
-                centerY - (timePaint.ascent() + timePaint.descent()) / 2, timePaint);
+                centerY - (timePaint.ascent() + timePaint.descent()) / 3, timePaint);
         canvas.restore();
 
         //日期
@@ -110,7 +110,7 @@ public class SimpleClockView extends View {
 
         canvas.drawText(textDate,
                 centerX - datePaint.measureText(textDate) / 2,
-                (float) (centerY - (datePaint.ascent() + datePaint.descent()) * 3.5),
+                (float) (centerY - (datePaint.ascent() + datePaint.descent()) * 3),
                 datePaint);
         canvas.restore();
     }
