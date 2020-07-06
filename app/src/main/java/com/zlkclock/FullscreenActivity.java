@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.PowerManager;
 
@@ -56,9 +57,16 @@ public class FullscreenActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             assert action != null;
-            if (action.equals(Intent.ACTION_TIME_TICK)) {
-                simpleClockView.showNewTime();
-                wakeLock.acquire(120000L);
+            switch (action) {
+                case Intent.ACTION_TIME_TICK:
+                    simpleClockView.showNewTime();
+                    wakeLock.acquire(120000L);
+                    break;
+                case Intent.ACTION_BATTERY_CHANGED:
+                    simpleClockView.showNewBatteryLevel(intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 100));
+                    break;
+                default:
+                    break;
             }
         }
     };

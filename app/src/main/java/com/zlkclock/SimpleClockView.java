@@ -6,6 +6,7 @@ import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -21,16 +22,16 @@ import java.util.Date;
  * @author zhenglk on 2020-07-05.
  */
 public class SimpleClockView extends View {
-    private Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private Paint circlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private Paint timePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private Paint datePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private Paint footerPaint = new Paint();
     private int centerX;
     private int centerY;
     private int radius;
     private int textSizeTime;
     private int textSizeDate;
     private RectF mRectF = new RectF();
-    public static final float START_ANGLE = -90;
     String textTime = "00:00";
     String textDateYl = "00-00";
     String textDateNl = "00-00";
@@ -41,11 +42,15 @@ public class SimpleClockView extends View {
     private final static SimpleDateFormat FMT_DATA = new SimpleDateFormat("MM月dd日");
     final static String[] WEEK = {"日", "一", "二", "三", "四", "五", "六"};
 
+    Rect rect = new Rect();
+
+    private int batteryLevel = 100;
+    private int batteryWidth;
+    private int batteryHeight;
 
     public SimpleClockView(Context context) {
         super(context);
         init();
-
     }
 
     public SimpleClockView(Context context, @Nullable AttributeSet attrs) {
@@ -65,9 +70,15 @@ public class SimpleClockView extends View {
     }
 
     void init() {
-        @SuppressLint("SimpleDateFormat")
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-        textTime = sdf.format(new Date());
+        textTime = FMT_TIME.format(new Date());
+
+        footerPaint.setColor(0xFFCACACA);
+        footerPaint.setAntiAlias(true);
+        footerPaint.setTextAlign(Paint.Align.LEFT);
+
+        Paint.FontMetrics metrics = footerPaint.getFontMetrics();
+        batteryHeight = (int) (metrics.descent - metrics.ascent);
+        batteryWidth = (int) (batteryHeight * 5f);
     }
 
     @Override
@@ -77,7 +88,7 @@ public class SimpleClockView extends View {
         int width = MeasureSpec.getSize(widthMeasureSpec);
         centerX = width / 2;
         centerY = height / 2;
-        radius = Math.max(centerX, centerY) - (int) dpToPixel(10);
+        radius = Math.max(centerX, centerY) - (int) dpToPixel(5);
         textSizeTime = (int) (width / 2.6);
         textSizeDate = width / 12;
         setMeasuredDimension(width, height);
@@ -89,10 +100,10 @@ public class SimpleClockView extends View {
         mRectF.set(centerX - radius, centerY - radius, centerX + radius, centerY + radius);
         //灰
         canvas.save();
-        mPaint.setColor(Color.GRAY);
-        mPaint.setStyle(Paint.Style.STROKE);
-        mPaint.setStrokeWidth(dpToPixel(5));
-        canvas.drawCircle(centerX, centerY, radius, mPaint);
+        circlePaint.setColor(Color.GRAY);
+        circlePaint.setStyle(Paint.Style.STROKE);
+        circlePaint.setStrokeWidth(dpToPixel(5));
+        canvas.drawCircle(centerX, centerY, radius, circlePaint);
         canvas.restore();
 
         //时间
@@ -100,7 +111,6 @@ public class SimpleClockView extends View {
         timePaint.setColor(Color.GRAY);
         timePaint.setStyle(Paint.Style.FILL);
         timePaint.setTextSize(textSizeTime);
-
         canvas.drawText(textTime, centerX - timePaint.measureText(textTime) / 2,
                 centerY - (timePaint.ascent() + timePaint.descent()) / 3, timePaint);
         canvas.restore();
@@ -110,7 +120,6 @@ public class SimpleClockView extends View {
         datePaint.setColor(Color.GRAY);
         datePaint.setStyle(Paint.Style.FILL);
         datePaint.setTextSize(textSizeDate);
-
         if (centerX > centerY) {
             String textDate = textDateYl + "," + textDateNl + "," + textDateWeek;
             canvas.drawText(textDate,
@@ -132,7 +141,46 @@ public class SimpleClockView extends View {
                     centerY - (datePaint.ascent() + datePaint.descent()) * 8,
                     datePaint);
         }
+        canvas.restore();
 
+
+        canvas.save();
+        footerPaint.setColor(Color.GRAY);
+        footerPaint.setAntiAlias(true);
+        footerPaint.setTextAlign(Paint.Align.RIGHT);
+
+        int batterLeft = centerX * 5 / 3;
+        int batterTop = (int) (centerY + (timePaint.ascent() + timePaint.descent()));
+        int batteryBorder = 2;
+        int batterHeaderSize = 5;
+
+        //电量框
+        rect.left = batterLeft;
+        rect.top = batterTop;
+        rect.right = rect.left + batteryWidth;
+        rect.bottom = rect.top + batteryHeight;
+
+        footerPaint.setStyle(Paint.Style.STROKE);
+
+        footerPaint.setStrokeWidth(batteryBorder);
+        canvas.drawRect(rect, footerPaint);
+
+        //电量框头部
+        rect.left = batterLeft + batteryWidth;
+        rect.top = (int) (batterTop + batteryHeight * 1f / 4);
+
+        rect.right = rect.left + batterHeaderSize;
+        rect.bottom = (int) (batterTop + batteryHeight * 3f / 4);
+        footerPaint.setStyle(Paint.Style.FILL);
+        canvas.drawRect(rect, footerPaint);
+
+        //电量
+        float battery = (batteryWidth - batteryBorder - 1) * batteryLevel / 100f;
+        rect.left = (int) (batterLeft + batteryBorder / 2f + 1);
+        rect.top = (int) (batterTop + batteryBorder / 2f + 1);
+        rect.right = (int) (batterLeft + battery);
+        rect.bottom = (int) (batterTop + batteryHeight - batteryBorder / 2f - 1);
+        canvas.drawRect(rect, footerPaint);
         canvas.restore();
     }
 
@@ -150,4 +198,8 @@ public class SimpleClockView extends View {
         postInvalidate();
     }
 
+    public void showNewBatteryLevel(int level) {
+        batteryLevel = level;
+        postInvalidate();
+    }
 }
