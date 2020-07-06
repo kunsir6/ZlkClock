@@ -14,6 +14,7 @@ import android.view.View;
 import androidx.annotation.Nullable;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -31,11 +32,13 @@ public class SimpleClockView extends View {
     private RectF mRectF = new RectF();
     public static final float START_ANGLE = -90;
     String textTime = "00:00";
-    String textDate = "0000-00-00";
+    String textDateYl = "00-00";
+    String textDateNl = "00-00";
+    String textDateWeek = "00";
     @SuppressLint("SimpleDateFormat")
-    SimpleDateFormat fmt_time = new SimpleDateFormat("HH:mm");
+    private final static SimpleDateFormat FMT_TIME = new SimpleDateFormat("HH:mm");
     @SuppressLint("SimpleDateFormat")
-    SimpleDateFormat fmt_data = new SimpleDateFormat("yyyy-MM-dd");
+    private final static SimpleDateFormat FMT_DATA = new SimpleDateFormat("MM月dd日");
     final static String[] WEEK = {"日", "一", "二", "三", "四", "五", "六"};
 
 
@@ -75,8 +78,8 @@ public class SimpleClockView extends View {
         centerX = width / 2;
         centerY = height / 2;
         radius = Math.max(centerX, centerY) - (int) dpToPixel(10);
-        textSizeTime = (int) (width / 2.7);
-        textSizeDate = width / 10;
+        textSizeTime = (int) (width / 2.6);
+        textSizeDate = width / 12;
         setMeasuredDimension(width, height);
     }
 
@@ -108,22 +111,42 @@ public class SimpleClockView extends View {
         datePaint.setStyle(Paint.Style.FILL);
         datePaint.setTextSize(textSizeDate);
 
-        canvas.drawText(textDate,
-                centerX - datePaint.measureText(textDate) / 2,
-                (float) (centerY - (datePaint.ascent() + datePaint.descent()) * 3),
-                datePaint);
+        if (centerX > centerY) {
+            String textDate = textDateYl + "," + textDateNl + "," + textDateWeek;
+            canvas.drawText(textDate,
+                    centerX - datePaint.measureText(textDate) / 2,
+                    centerY - (datePaint.ascent() + datePaint.descent()) * 3,
+                    datePaint);
+        } else {
+            canvas.drawText(textDateYl,
+                    centerX - datePaint.measureText(textDateYl) / 2,
+                    centerY - (datePaint.ascent() + datePaint.descent()) * 4,
+                    datePaint);
+            canvas.drawText(textDateNl,
+                    centerX - datePaint.measureText(textDateNl) / 2,
+                    centerY - (datePaint.ascent() + datePaint.descent()) * 6,
+                    datePaint);
+            String txtWeek = "星期" + textDateWeek;
+            canvas.drawText(txtWeek,
+                    centerX - datePaint.measureText(txtWeek) / 2,
+                    centerY - (datePaint.ascent() + datePaint.descent()) * 8,
+                    datePaint);
+        }
+
         canvas.restore();
     }
 
     public void showNewTime() {
         Date date = new Date();
-        textTime = fmt_time.format(date);
-        int weekDay = -1;
+        textTime = FMT_TIME.format(date);
+
+        textDateYl = FMT_DATA.format(date);
+        textDateNl = new Lunar(Calendar.getInstance()).toString();
+        int weekDay;
         if ((weekDay = date.getDay()) <= 6) {
-            textDate = fmt_data.format(date) + " (" + WEEK[weekDay] + ")";
-        } else {
-            textDate = fmt_data.format(date);
+            textDateWeek = WEEK[weekDay];
         }
+
         postInvalidate();
     }
 
