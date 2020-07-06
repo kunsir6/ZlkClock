@@ -120,7 +120,7 @@ public class SimpleClockView extends View {
         textTime = fmt_time.format(date);
         int weekDay = -1;
         if ((weekDay = date.getDay()) <= 6) {
-            textDate = fmt_data.format(date) + " " + WEEK[weekDay];
+            textDate = fmt_data.format(date) + " (" + WEEK[weekDay] + ")";
         } else {
             textDate = fmt_data.format(date);
         }

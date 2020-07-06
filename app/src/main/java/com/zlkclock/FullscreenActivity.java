@@ -63,6 +63,11 @@ public class FullscreenActivity extends AppCompatActivity {
     };
 
     @Override
+    public void onBackPressed() {
+//        super.onBackPressed();
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         // 注销广播
