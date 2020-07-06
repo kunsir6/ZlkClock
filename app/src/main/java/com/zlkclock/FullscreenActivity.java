@@ -46,6 +46,7 @@ public class FullscreenActivity extends AppCompatActivity {
 
 
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        assert pm != null;
         wakeLock = pm.newWakeLock(PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.SCREEN_DIM_WAKE_LOCK, "bright");
         wakeLock.acquire(120000L);
     }
