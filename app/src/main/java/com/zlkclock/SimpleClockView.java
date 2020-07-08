@@ -44,7 +44,7 @@ public class SimpleClockView extends View {
 
     Rect rect = new Rect();
 
-    private int batteryLevel = 100;
+    private int batteryLevel = 30;
     private int batteryWidth;
     private int batteryHeight;
 
@@ -104,19 +104,15 @@ public class SimpleClockView extends View {
         circlePaint.setStyle(Paint.Style.STROKE);
         circlePaint.setStrokeWidth(dpToPixel(5));
         canvas.drawCircle(centerX, centerY, radius, circlePaint);
-        canvas.restore();
 
         //时间
-        canvas.save();
         timePaint.setColor(Color.GRAY);
         timePaint.setStyle(Paint.Style.FILL);
         timePaint.setTextSize(textSizeTime);
         canvas.drawText(textTime, centerX - timePaint.measureText(textTime) / 2,
                 centerY - (timePaint.ascent() + timePaint.descent()) / 3, timePaint);
-        canvas.restore();
 
         //日期
-        canvas.save();
         datePaint.setColor(Color.GRAY);
         datePaint.setStyle(Paint.Style.FILL);
         datePaint.setTextSize(textSizeDate);
@@ -141,16 +137,13 @@ public class SimpleClockView extends View {
                     centerY - (datePaint.ascent() + datePaint.descent()) * 8,
                     datePaint);
         }
-        canvas.restore();
 
-
-        canvas.save();
         footerPaint.setColor(Color.GRAY);
         footerPaint.setAntiAlias(true);
         footerPaint.setTextAlign(Paint.Align.RIGHT);
 
         int batterLeft = centerX * 5 / 3;
-        int batterTop = (int) (centerY + (timePaint.ascent() + timePaint.descent()));
+        int batterTop = (int) (centerY + (timePaint.ascent() + timePaint.descent()) * 4 / 5);
         int batteryBorder = 2;
         int batterHeaderSize = 5;
 

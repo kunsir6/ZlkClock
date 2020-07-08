@@ -38,6 +38,7 @@ public class FullscreenActivity extends AppCompatActivity {
         // 更新时间的广播
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_TIME_TICK);
+        filter.addAction(Intent.ACTION_BATTERY_CHANGED);
         registerReceiver(receiver, filter);
 
         ActionBar actionBar = getSupportActionBar();
